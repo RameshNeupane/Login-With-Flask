@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% block styles %} {% endblock %}
+  <script>
+    function removeMessage() {
+      let par =  document.getElementById('btn').parentNode;
+      while(par.firstChild) {
+        par.removeChild(par.firstChild);
+      }
+
+    }
+  </script>
+  <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+  {% for message in get_flashed_messages() %}
+    <div>
+      <button type="button" id="btn" onclick="removeMessage()">&times;</button>
+      <span id="close">{{ message }}</span>
+    </div>
+  {% endfor %}
+  {% block body %}
+  {% endblock %}
+</body>
+</html>

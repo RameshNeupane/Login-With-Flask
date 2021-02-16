@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="{{ url_for('static', filename = 'css/styleSuccess.css') }}">
+{% endblock %}
+{% block title %}Success{% endblock %}
+
+{% block body %}
+  <h1>Success!!!!!, {{ name }}</h1>
+{% endblock %}

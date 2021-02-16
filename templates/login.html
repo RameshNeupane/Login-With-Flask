@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+
+{% block styles %} 
+  {{ super() }}
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'css/styleLogin.css', _external=True) }}">
+  <!-- <link rel="stylesheet" href="../static/css/styleLogin.css"> -->
+{% endblock %}
+{% block title %}Login{% endblock %}
+
+{% block body %}
+<h1>Login Form</h1>
+<!-- {% for field, errors in login.errors.items() %}
+    <div>
+      <button type="button" id="btn" onclick="removeMessage()">&times;</button>
+      <span id="close">{{ ''.join(errors) }}</span>
+    </div>
+  {% endfor %} -->
+<form method="post">
+  {{ login.hidden_tag() }}
+  {{ login.fullname.label }} {{ login.fullname( placeholder = "Ramesh Neupane", required_title =  ) }} *
+  {% if login.fullname.data == '' %}
+    {{ ''.join(login.errors.fullname)}}
+  {% endif %}
+  {{ ''.join(login.errors['fullname']) }} <br><br>
+ 
+  {{ login.birthdate.label }} {{login.birthdate( placeholder = "YYYY-MM-DD" )}}
+  {{ ''.join(login.errors['birthdate'])}} <br><br>
+
+  {{ login.email.label }} {{ login.email( placeholder = "ramesh@gmail.com" ) }}
+  {{ ''.join(login.errors['email'])}} <br><br>
+
+  {{ login.password.label }} {{ login.password() }} *
+  {{ ''.join(login.errors['password'])}} <br><br>
+
+  {{ login.confirmPassword.label }} {{ login.confirmPassword() }} *
+  {{ ''.join(login.errors['confirmPassword'])}} <br><br>
+  {{ login.submit() }}
+</form>
+{% endblock %}
