@@ -17,8 +17,8 @@
   {% endfor %} -->
 <form method="post">
   {{ login.hidden_tag() }}
-  {{ login.fullname.label }} {{ login.fullname( placeholder = "Ramesh Neupane", required_title =  ) }} *
-  {% if login.fullname.data == '' %}
+  {{ login.fullname.label }} {{ login.fullname( placeholder = "Ramesh Neupane" ) }} *
+  {% if login.fullname.data == None %}
     {{ ''.join(login.errors.fullname)}}
   {% endif %}
   {{ ''.join(login.errors['fullname']) }} <br><br>
