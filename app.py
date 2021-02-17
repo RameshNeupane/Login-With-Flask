@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, flash
 import re
+import datetime
+import hashlib
 # Flask WTF 
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, DateField, SubmitField
@@ -55,6 +57,29 @@ class Login(FlaskForm):
   submit = SubmitField("Submit")
 
     
+# make input data clean
+def clean_data(fname, dob, email, pwd):
+  fname = fname.strip()
+  fname = fname.split(' ')
+  cap_fname = []
+  for name in fname:
+    cap_fname.append(name.capitalize())
+  fname = ' '.join(cap_fname)
+
+  dob = dob.split('-')
+  y, m , d = dob[0], list(dob[1]), list(dob[2])
+  if m[0] == '0':
+    m.remove('0') 
+  if d[0] == '0':
+    d.remove('0')
+  m = ''.join(m)
+  d = ''.join(d)
+  dob = [int(y), int(m), int(d)]
+  
+  pwd = hashlib.sha512(pwd.encode()).hexdigest()
+  
+  return [fname, dob, email, pwd]
+  
 
 @app.route("/", methods = ["GET", "POST"])
 def login():
@@ -63,10 +88,31 @@ def login():
     old_name = session.get('name')
     if old_name is not None and old_name != log.fullname.data:
       flash("Name has been changed.")
+      # return redirect("/")
     session['name'] = log.fullname.data
-    return redirect("/success")
+    
+    fname = log.fullname.data
+    dob = str(log.birthdate.data)
+    email = log.email.data
+    pwd = log.password.data
+    data = clean_data(fname, dob, email, pwd)
+    # database operation
+    logindb.create_all()
+    usr = LoginUser(fullname = data[0], birthdate = datetime.date(data[1][0], data[1][1], data[1][2]),
+                    email = data[2], password = data[3])
+    logindb.session.add(usr)
+    try:
+      logindb.session.commit()
+      flash("User created successfully.")  
+      return redirect("/success")
+    except:
+      logindb.session.rollback()
+      flash("Something went wrong")
+      return redirect("/")
+    
   return render_template("login.html", login = log, name = session.get('name'))
 
 @app.route("/success", methods = ['GET', 'POST'])
 def success():
+  
   return render_template("success.html", name = session.get('name'))

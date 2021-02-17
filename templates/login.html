@@ -26,7 +26,7 @@
   {{ login.birthdate.label }} {{login.birthdate( placeholder = "YYYY-MM-DD" )}}
   {{ ''.join(login.errors['birthdate'])}} <br><br>
 
-  {{ login.email.label }} {{ login.email( placeholder = "ramesh@gmail.com" ) }}
+  {{ login.email.label }} {{ login.email( placeholder = "ramesh@gmail.com" ) }} *
   {{ ''.join(login.errors['email'])}} <br><br>
 
   {{ login.password.label }} {{ login.password() }} *
