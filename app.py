@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, redirect, session, flash
+import re
 # Flask WTF 
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, DateField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, Length, InputRequired
+from wtforms.validators import DataRequired, Email, EqualTo, Length, InputRequired, ValidationError
 
 # Flask Database
 import os 
@@ -13,7 +14,6 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "MAKING FLASK FORM"
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'logindata.sqlite')}"
-app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
 
 logindb = SQLAlchemy(app)
 
@@ -27,18 +27,34 @@ class LoginUser(logindb.Model):
   
   def __repr__(self):
     return '<LoginUser %r>' %self.fullname
+  
+  
+# custom validation for fullname
+def validate_fullname(form, field):
+  name = field.data
+  name_re = re.findall("[a-zA-Z ]", name)
+  if(''.join(name_re) != name):
+    raise ValidationError("Alphabets and whitespace only.")
+  
+def validate_password(form, field):
+  pwd = field.data
+  pwd_re = re.findall("[a-zA-Z0-9!@$_()&]", pwd)
+  if(''.join(pwd_re) != pwd):
+    raise ValidationError("Alphabets, digits, !, @, $, _, (, ), & only.")
 
 # Login form class
 class Login(FlaskForm):
-  fullname = StringField("Name: ", validators = [InputRequired(message = "Required."), 
+  fullname = StringField("Name: ", validators = [InputRequired(message = "Required."), validate_fullname, 
               Length(min = 10, max = 30, message = "Name must contain at least %(min)d characters.")])
   birthdate = DateField("Birthdate: ")
-  email = StringField("Email: ", validators = [DataRequired(), Email()])
-  password = PasswordField("Password: ", validators = [DataRequired(message = "Required."),
+  email = StringField("Email: ", validators = [InputRequired(), Email()])
+  password = PasswordField("Password: ", validators = [InputRequired(message = "Required."), validate_password,
               Length(min = 8, max = 8, message = "Password must be %(min)d character long.")])
-  confirmPassword = PasswordField("Confirm Password: ", validators = [DataRequired(),
+  confirmPassword = PasswordField("Confirm Password: ", validators = [InputRequired(),
                       EqualTo("password", message = "Password must match.")])
   submit = SubmitField("Submit")
+
+    
 
 @app.route("/", methods = ["GET", "POST"])
 def login():
