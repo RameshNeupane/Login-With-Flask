@@ -67,14 +67,8 @@ def clean_data(fname, dob, email, pwd):
   fname = ' '.join(cap_fname)
 
   dob = dob.split('-')
-  y, m , d = dob[0], list(dob[1]), list(dob[2])
-  if m[0] == '0':
-    m.remove('0') 
-  if d[0] == '0':
-    d.remove('0')
-  m = ''.join(m)
-  d = ''.join(d)
-  dob = [int(y), int(m), int(d)]
+  y, m , d = int(dob[0]), int(dob[1]), int(dob[2])
+  dob = [y, m , d]
   
   pwd = hashlib.sha512(pwd.encode()).hexdigest()
   
@@ -114,5 +108,7 @@ def login():
 
 @app.route("/success", methods = ['GET', 'POST'])
 def success():
-  
-  return render_template("success.html", name = session.get('name'))
+  last_user_id= logindb.session.query(LoginUser.fullname).count()
+  last_user = LoginUser.query.filter_by(id = last_user_id).first()
+  print(last_user)
+  return render_template("success.html", user = last_user)
